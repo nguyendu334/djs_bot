@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { Client, GatewayIntentBits, Routes } from 'discord.js';
+import { Client, GatewayIntentBits, Routes, ActionRowBuilder, SelectMenuBuilder } from 'discord.js';
 import { REST } from '@discordjs/rest';
 
 import orderCommand from './commands/order.js';
@@ -28,9 +28,31 @@ client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isChatInputCommand()) {
-        const food = interaction.options.get('food').value;
-        const drink = interaction.options.get('drink').value;
-        interaction.reply({ content: `You ordered: ${food} and ${drink}` });
+        if (interaction.commandName === 'order') {
+            // const food = interaction.options.getString('food');
+            // const drink = interaction.options.getString('drink');
+            // await interaction.reply(`You ordered a ${food} with ${drink}`);
+            const actionRowComponent = new ActionRowBuilder().setComponents(
+                new SelectMenuBuilder().setCustomId('food_options').setOptions([
+                    {
+                        label: 'Pizza',
+                        value: 'pizza',
+                    },
+                    {
+                        label: 'Hamburger',
+                        value: 'hamburger',
+                    },
+                    {
+                        label: 'Hotdog',
+                        value: 'hotdog',
+                    },
+                ]),
+            );
+            interaction.reply({
+                components: [actionRowComponent.toJSON()],
+                content: 'Please select a food',
+            })
+        }
     }
 });
 
