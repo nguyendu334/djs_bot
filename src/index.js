@@ -5,6 +5,9 @@ import {
     Routes,
     ActionRowBuilder,
     StringSelectMenuBuilder,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
 } from 'discord.js';
 import { REST } from '@discordjs/rest';
 
@@ -13,6 +16,7 @@ import rolesCommand from './commands/roles.js';
 import usersCommand from './commands/user.js';
 import chanelsCommand from './commands/channel.js';
 import banCommand from './commands/ban.js';
+import registerCommand from './commands/register.js';
 
 config();
 
@@ -74,6 +78,31 @@ client.on('interactionCreate', async (interaction) => {
                 components: [actionRowComponent.toJSON(), actionRowDrinkMenu.toJSON()],
                 content: 'Please select a food',
             });
+        } else if (interaction.commandName === 'register') {
+            const modal = new ModalBuilder()
+                .setTitle('Register User form')
+                .setCustomId('registerUserModal')
+                .setComponents(
+                    new ActionRowBuilder().setComponents(
+                        new TextInputBuilder()
+                            .setLabel('username')
+                            .setCustomId('username')
+                            .setStyle(TextInputStyle.Short),
+                    ),
+                    new ActionRowBuilder().setComponents(
+                        new TextInputBuilder()
+                            .setLabel('email')
+                            .setCustomId('email')
+                            .setStyle(TextInputStyle.Short),
+                    ),
+                    new ActionRowBuilder().setComponents(
+                        new TextInputBuilder()
+                            .setLabel('comment')
+                            .setCustomId('comment')
+                            .setStyle(TextInputStyle.Paragraph),
+                    ),
+                );
+            interaction.showModal(modal);
         }
     } else if (interaction.isStringSelectMenu()) {
         if (interaction.customId === 'food_options') {
@@ -85,7 +114,14 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function main() {
-    const commands = [orderCommand, rolesCommand, usersCommand, chanelsCommand, banCommand];
+    const commands = [
+        orderCommand,
+        rolesCommand,
+        usersCommand,
+        chanelsCommand,
+        banCommand,
+        registerCommand,
+    ];
     try {
         console.log('Started refreshing application (/) commands.');
         await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
