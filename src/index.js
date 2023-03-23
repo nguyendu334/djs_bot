@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import { Client, GatewayIntentBits, Routes } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import { REST } from '@discordjs/rest';
 
 config();
@@ -29,54 +30,47 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function main() {
-    const commands = [
-        {
-            name: 'order',
-            description: 'Order something...',
-            options: [
-                {
-                    name: 'food',
-                    description: 'The type of food you want to order',
-                    type: 3,
-                    required: true,
-                    choices: [
-                        {
-                            name: 'Pizza',
-                            value: 'pizza',
-                        },
-                        {
-                            name: 'Pasta',
-                            value: 'pasta',
-                        }
-                    ]
-                },
-                {
-                    name: 'drink',
-                    description: 'The type of drink you want to order',
-                    type: 3,
-                    required: true,
-                    choices: [
-                        {
-                            name: 'Coke',
-                            value: 'coke',
-                        },
-                        {
-                            name: 'Fanta',
-                            value: 'fanta',
-                        },
-                        {
-                            name: 'Sprite',
-                            value: 'sprite',
-                        }
-                    ]
-                }
-            ],
-        },
-        {
-            name: 'help',
-            description: 'Help me!',
-        },
-    ];
+    const orderCommand = new SlashCommandBuilder()
+        .setName('order')
+        .setDescription('Order something...')
+        .addStringOption((option) =>
+            option
+                .setName('food')
+                .setDescription('The type of food you want to order')
+                .setRequired(true)
+                .setChoices(
+                    {
+                        name: 'Pizza',
+                        value: 'pizza',
+                    },
+                    {
+                        name: 'Hamburger',
+                        value: 'hamburger',
+                    },
+                ),
+        )
+        .addStringOption((option) =>
+            option
+                .setName('drink')
+                .setDescription('The type of drink you want to order')
+                .setRequired(true)
+                .setChoices(
+                    {
+                        name: 'Coke',
+                        value: 'coke',
+                    },
+                    {
+                        name: 'Fanta',
+                        value: 'fanta',
+                    },
+                    {
+                        name: 'Sprite',
+                        value: 'sprite',
+                    },
+                ),
+        );
+
+    const commands = [orderCommand.toJSON()];
     try {
         console.log('Started refreshing application (/) commands.');
         await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
