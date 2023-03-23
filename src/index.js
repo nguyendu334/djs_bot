@@ -8,6 +8,7 @@ import {
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
+    InteractionType,
 } from 'discord.js';
 import { REST } from '@discordjs/rest';
 
@@ -38,6 +39,7 @@ client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isChatInputCommand()) {
+        console.log('Chat command');
         if (interaction.commandName === 'order') {
             // const food = interaction.options.getString('food');
             // const drink = interaction.options.getString('drink');
@@ -105,10 +107,18 @@ client.on('interactionCreate', async (interaction) => {
             interaction.showModal(modal);
         }
     } else if (interaction.isStringSelectMenu()) {
+        console.log('Select menu');
         if (interaction.customId === 'food_options') {
             console.log('hello');
         } else if (interaction.customId === 'drink_options') {
             console.log('hello');
+        }
+    } else if (interaction.type === InteractionType.ModalSubmit) {
+        console.log('Modal submitted....');
+        console.log(interaction);
+        if (interaction.customId === 'registerUserModal') {
+            console.log(interaction.fields.getTextInputValue('username'));
+            interaction.reply({ content: 'Thanks for registering' });
         }
     }
 });
