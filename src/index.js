@@ -4,6 +4,8 @@ import { REST } from '@discordjs/rest';
 
 import orderCommand from './commands/order.js';
 import rolesCommand from './commands/roles.js';
+import usersCommand from './commands/user.js';
+import chanelsCommand from './commands/channel.js';
 
 config();
 
@@ -32,7 +34,7 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function main() {
-    const commands = [orderCommand, rolesCommand];
+    const commands = [orderCommand, rolesCommand, usersCommand, chanelsCommand];
     try {
         console.log('Started refreshing application (/) commands.');
         await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
