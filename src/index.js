@@ -20,17 +20,18 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
 
 client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.tag}`));
 
-// client.on('messageCreate', (message) => {
-//     console.log(`Message received: ${message.content}`);
-//     console.log(`Message author: ${message.author.tag}`);
-//     console.log(`Message created at: ${message.createdAt.toDateString()}`);
-// });
+client.on('interactionCreate', async (interaction) => {
+    if(interaction.isChatInputCommand()) {
+        console.log(interaction.commandName);
+        interaction.reply('Hello!');
+    }
+})
 
 async function main() {
     const commands = [
         {
-            name: 'ping',
-            description: 'Replies with Pong!',
+            name: 'order',
+            description: 'Order something...',
         },
         {
             name: 'help',
