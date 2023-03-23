@@ -21,17 +21,24 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
 client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.tag}`));
 
 client.on('interactionCreate', async (interaction) => {
-    if(interaction.isChatInputCommand()) {
-        console.log(interaction.commandName);
-        interaction.reply('Hello!');
+    if (interaction.isChatInputCommand()) {
+        interaction.reply({ content: `You order: ${interaction.options.getString('food')}` });
     }
-})
+});
 
 async function main() {
     const commands = [
         {
             name: 'order',
             description: 'Order something...',
+            options: [
+                {
+                    name: 'food',
+                    description: 'The type of food you want to order',
+                    type: 3,
+                    required: true,
+                },
+            ],
         },
         {
             name: 'help',
