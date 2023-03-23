@@ -1,7 +1,9 @@
 import { config } from 'dotenv';
 import { Client, GatewayIntentBits, Routes } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
 import { REST } from '@discordjs/rest';
+
+import orderCommand from './commands/order.js';
+import rolesCommand from './commands/roles.js';
 
 config();
 
@@ -23,54 +25,14 @@ client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isChatInputCommand()) {
-        const food = interaction.options.getString('food');
-        const drink = interaction.options.getString('drink');
+        const food = interaction.options.get('food').value;
+        const drink = interaction.options.get('drink').value;
         interaction.reply({ content: `You ordered: ${food} and ${drink}` });
     }
 });
 
 async function main() {
-    const orderCommand = new SlashCommandBuilder()
-        .setName('order')
-        .setDescription('Order something...')
-        .addStringOption((option) =>
-            option
-                .setName('food')
-                .setDescription('The type of food you want to order')
-                .setRequired(true)
-                .setChoices(
-                    {
-                        name: 'Pizza',
-                        value: 'pizza',
-                    },
-                    {
-                        name: 'Hamburger',
-                        value: 'hamburger',
-                    },
-                ),
-        )
-        .addStringOption((option) =>
-            option
-                .setName('drink')
-                .setDescription('The type of drink you want to order')
-                .setRequired(true)
-                .setChoices(
-                    {
-                        name: 'Coke',
-                        value: 'coke',
-                    },
-                    {
-                        name: 'Fanta',
-                        value: 'fanta',
-                    },
-                    {
-                        name: 'Sprite',
-                        value: 'sprite',
-                    },
-                ),
-        );
-
-    const commands = [orderCommand.toJSON()];
+    const commands = [orderCommand, rolesCommand];
     try {
         console.log('Started refreshing application (/) commands.');
         await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
