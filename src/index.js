@@ -22,7 +22,9 @@ client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isChatInputCommand()) {
-        interaction.reply({ content: `You order: ${interaction.options.getString('food')}` });
+        const food = interaction.options.getString('food');
+        const drink = interaction.options.getString('drink');
+        interaction.reply({ content: `You ordered: ${food} and ${drink}` });
     }
 });
 
@@ -37,7 +39,37 @@ async function main() {
                     description: 'The type of food you want to order',
                     type: 3,
                     required: true,
+                    choices: [
+                        {
+                            name: 'Pizza',
+                            value: 'pizza',
+                        },
+                        {
+                            name: 'Pasta',
+                            value: 'pasta',
+                        }
+                    ]
                 },
+                {
+                    name: 'drink',
+                    description: 'The type of drink you want to order',
+                    type: 3,
+                    required: true,
+                    choices: [
+                        {
+                            name: 'Coke',
+                            value: 'coke',
+                        },
+                        {
+                            name: 'Fanta',
+                            value: 'fanta',
+                        },
+                        {
+                            name: 'Sprite',
+                            value: 'sprite',
+                        }
+                    ]
+                }
             ],
         },
         {
