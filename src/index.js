@@ -1,5 +1,11 @@
 import { config } from 'dotenv';
-import { Client, GatewayIntentBits, Routes, ActionRowBuilder, SelectMenuBuilder } from 'discord.js';
+import {
+    Client,
+    GatewayIntentBits,
+    Routes,
+    ActionRowBuilder,
+    StringSelectMenuBuilder,
+} from 'discord.js';
 import { REST } from '@discordjs/rest';
 
 import orderCommand from './commands/order.js';
@@ -33,7 +39,7 @@ client.on('interactionCreate', async (interaction) => {
             // const drink = interaction.options.getString('drink');
             // await interaction.reply(`You ordered a ${food} with ${drink}`);
             const actionRowComponent = new ActionRowBuilder().setComponents(
-                new SelectMenuBuilder().setCustomId('food_options').setOptions([
+                new StringSelectMenuBuilder().setCustomId('food_options').setOptions([
                     {
                         label: 'Pizza',
                         value: 'pizza',
@@ -48,10 +54,32 @@ client.on('interactionCreate', async (interaction) => {
                     },
                 ]),
             );
+            const actionRowDrinkMenu = new ActionRowBuilder().setComponents(
+                new StringSelectMenuBuilder().setCustomId('drink_options').setOptions([
+                    {
+                        label: 'Coke',
+                        value: 'coke',
+                    },
+                    {
+                        label: 'Fanta',
+                        value: 'fanta',
+                    },
+                    {
+                        label: 'Sprite',
+                        value: 'sprite',
+                    },
+                ]),
+            );
             interaction.reply({
-                components: [actionRowComponent.toJSON()],
+                components: [actionRowComponent.toJSON(), actionRowDrinkMenu.toJSON()],
                 content: 'Please select a food',
-            })
+            });
+        }
+    } else if (interaction.isStringSelectMenu()) {
+        if (interaction.customId === 'food_options') {
+            console.log('hello');
+        } else if (interaction.customId === 'drink_options') {
+            console.log('hello');
         }
     }
 });
