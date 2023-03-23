@@ -9,6 +9,8 @@ import {
     TextInputBuilder,
     TextInputStyle,
     InteractionType,
+    ButtonBuilder,
+    ButtonStyle,
 } from 'discord.js';
 import { REST } from '@discordjs/rest';
 
@@ -18,6 +20,7 @@ import usersCommand from './commands/user.js';
 import chanelsCommand from './commands/channel.js';
 import banCommand from './commands/ban.js';
 import registerCommand from './commands/register.js';
+import buttonCommand from './commands/button.js';
 
 config();
 
@@ -36,6 +39,29 @@ const client = new Client({
 const rest = new REST({ version: '10' }).setToken(TOKEN);
 
 client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.tag}`));
+
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+    const sentMessage = await message.channel.send({
+        content: 'Hello World!',
+        components: [
+            new ActionRowBuilder().setComponents(
+                new ButtonBuilder()
+                    .setCustomId('button')
+                    .setLabel('Button')
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId('button2')
+                    .setLabel('Button2')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setLabel('Discord')
+                    .setStyle(ButtonStyle.Link)
+                    .setURL('https://discord.com'),
+            ),
+        ],
+    });
+});
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isChatInputCommand()) {
@@ -105,6 +131,26 @@ client.on('interactionCreate', async (interaction) => {
                     ),
                 );
             interaction.showModal(modal);
+        } else if (interaction.commandName === 'button') {
+            interaction.reply({
+                content: 'Button',
+                components: [
+                    new ActionRowBuilder().setComponents(
+                        new ButtonBuilder()
+                            .setCustomId('button')
+                            .setLabel('Button')
+                            .setStyle(ButtonStyle.Primary),
+                        new ButtonBuilder()
+                            .setCustomId('button2')
+                            .setLabel('Button2')
+                            .setStyle(ButtonStyle.Secondary),
+                        new ButtonBuilder()
+                            .setLabel('Discord')
+                            .setStyle(ButtonStyle.Link)
+                            .setURL('https://discord.com'),
+                    ),
+                ],
+            });
         }
     } else if (interaction.isStringSelectMenu()) {
         console.log('Select menu');
@@ -120,6 +166,10 @@ client.on('interactionCreate', async (interaction) => {
             console.log(interaction.fields.getTextInputValue('username'));
             interaction.reply({ content: 'Thanks for registering' });
         }
+    } else if (interaction.isButton()) {
+        console.log('Button clicked!');
+        console.log(interaction.componentType);
+        interaction.reply({ content: 'Thank for clicking on the button!' });
     }
 });
 
@@ -131,6 +181,7 @@ async function main() {
         chanelsCommand,
         banCommand,
         registerCommand,
+        buttonCommand,
     ];
     try {
         console.log('Started refreshing application (/) commands.');
