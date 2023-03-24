@@ -161,7 +161,6 @@ client.on('interactionCreate', async (interaction) => {
         }
     } else if (interaction.type === InteractionType.ModalSubmit) {
         console.log('Modal submitted....');
-        console.log(interaction);
         if (interaction.customId === 'registerUserModal') {
             console.log(interaction.fields.getTextInputValue('username'));
             interaction.reply({ content: 'Thanks for registering' });
@@ -170,6 +169,40 @@ client.on('interactionCreate', async (interaction) => {
         console.log('Button clicked!');
         console.log(interaction.componentType);
         interaction.reply({ content: 'Thank for clicking on the button!' });
+    } else if (interaction.isUserContextMenuCommand()) {
+        console.log('User context menu command');
+        console.log(interaction.commandName);
+        if (interaction.commandName === 'Report') {
+            const modal = new ModalBuilder()
+                .setCustomId('reportUserModal')
+                .setTitle('Report User')
+                .setComponents(
+                    new ActionRowBuilder().setComponents(
+                        new TextInputBuilder()
+                            .setCustomId('reportMessage')
+                            .setLabel('Report Message')
+                            .setStyle(TextInputStyle.Paragraph)
+                            .setRequired(true)
+                            .setMinLength(10)
+                            .setMaxLength(1000),
+                    ),
+                );
+            await interaction.showModal(modal);
+            const modalSubmitInteraction = await interaction.awaitModalSubmit({
+                fillter: (i) => {
+                    console.log('Awaiting modal submit');
+                    return true;
+                },
+                time: 120000,
+            });
+
+            modalSubmitInteraction.reply({
+                content: `Thanks for reporting ${
+                    interaction.targetMember
+                }. Reason: ${modalSubmitInteraction.fields.getTextInputValue('reportMessage')}`,
+                ephemeral: true,
+            });
+        }
     }
 });
 
@@ -182,6 +215,10 @@ async function main() {
         banCommand,
         registerCommand,
         buttonCommand,
+        {
+            name: 'Report',
+            type: 2,
+        },
     ];
     try {
         console.log('Started refreshing application (/) commands.');
