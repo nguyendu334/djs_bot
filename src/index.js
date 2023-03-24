@@ -202,6 +202,10 @@ client.on('interactionCreate', async (interaction) => {
                 }. Reason: ${modalSubmitInteraction.fields.getTextInputValue('reportMessage')}`,
                 ephemeral: true,
             });
+        } else if (interaction.commandName === 'Wave') {
+            interaction.reply({
+                content: `Hello ${interaction.targetMember}`,
+            });
         }
     }
 });
@@ -217,6 +221,10 @@ async function main() {
         buttonCommand,
         {
             name: 'Report',
+            type: 2,
+        },
+        {
+            name: 'Wave',
             type: 2,
         },
     ];
