@@ -1,3 +1,4 @@
+import keepAlive from './server.js';
 import { config } from 'dotenv';
 import {
     Client,
@@ -11,6 +12,7 @@ import {
     InteractionType,
     ButtonBuilder,
     ButtonStyle,
+    ActivityType
 } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import schedule from 'node-schedule';
@@ -63,7 +65,19 @@ const commands = [
     scheduleCommand,
 ];
 
-client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.tag}`));
+client.on('ready', () => {
+    console.log(`Bot is ready! Logged in as: ${client.user.tag}`);
+
+    client.user.setPresence({
+        status: 'idle',
+        activities: [
+            {
+                name: 'djs_bot | Started refreshing application (/) commands.',
+                type: ActivityType.Watching,
+            },
+        ],
+    });
+});
 
 // client.on('messageCreate', async (message) => {
 //     if (message.author.bot) return;
@@ -258,3 +272,5 @@ async function main() {
 }
 
 main();
+
+keepAlive();
