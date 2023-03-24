@@ -13,6 +13,7 @@ import {
     ButtonStyle,
 } from 'discord.js';
 import { REST } from '@discordjs/rest';
+import schedule from 'node-schedule';
 
 import orderCommand from './commands/order.js';
 import rolesCommand from './commands/roles.js';
@@ -21,6 +22,7 @@ import chanelsCommand from './commands/channel.js';
 import banCommand from './commands/ban.js';
 import registerCommand from './commands/register.js';
 import buttonCommand from './commands/button.js';
+import scheduleCommand from './commands/schedule.js';
 
 config();
 
@@ -38,38 +40,58 @@ const client = new Client({
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);
 
+const commands = [
+    orderCommand,
+    rolesCommand,
+    usersCommand,
+    chanelsCommand,
+    banCommand,
+    registerCommand,
+    buttonCommand,
+    {
+        name: 'Report',
+        type: 2,
+    },
+    {
+        name: 'Wave',
+        type: 2,
+    },
+    {
+        name: 'Report Message',
+        type: 3,
+    },
+    scheduleCommand,
+];
+
 client.on('ready', () => console.log(`Bot is ready! Logged in as: ${client.user.tag}`));
 
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-    const sentMessage = await message.channel.send({
-        content: 'Hello World!',
-        components: [
-            new ActionRowBuilder().setComponents(
-                new ButtonBuilder()
-                    .setCustomId('button')
-                    .setLabel('Button')
-                    .setStyle(ButtonStyle.Primary),
-                new ButtonBuilder()
-                    .setCustomId('button2')
-                    .setLabel('Button2')
-                    .setStyle(ButtonStyle.Secondary),
-                new ButtonBuilder()
-                    .setLabel('Discord')
-                    .setStyle(ButtonStyle.Link)
-                    .setURL('https://discord.com'),
-            ),
-        ],
-    });
-});
+// client.on('messageCreate', async (message) => {
+//     if (message.author.bot) return;
+//     await message.channel.send({
+//         content: 'Hello World!',
+//         components: [
+//             new ActionRowBuilder().setComponents(
+//                 new ButtonBuilder()
+//                     .setCustomId('button')
+//                     .setLabel('Button')
+//                     .setStyle(ButtonStyle.Primary),
+//                 new ButtonBuilder()
+//                     .setCustomId('button2')
+//                     .setLabel('Button2')
+//                     .setStyle(ButtonStyle.Secondary),
+//                 new ButtonBuilder()
+//                     .setLabel('Discord')
+//                     .setStyle(ButtonStyle.Link)
+//                     .setURL('https://discord.com'),
+//             ),
+//         ],
+//     });
+// });
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isChatInputCommand()) {
         console.log('Chat command');
         if (interaction.commandName === 'order') {
-            // const food = interaction.options.getString('food');
-            // const drink = interaction.options.getString('drink');
-            // await interaction.reply(`You ordered a ${food} with ${drink}`);
             const actionRowComponent = new ActionRowBuilder().setComponents(
                 new StringSelectMenuBuilder().setCustomId('food_options').setOptions([
                     {
@@ -151,6 +173,20 @@ client.on('interactionCreate', async (interaction) => {
                     ),
                 ],
             });
+        } else if (interaction.commandName === 'schedule') {
+            const message = interaction.options.getString('message');
+            const time = interaction.options.getInteger('time');
+            const channel = interaction.options.getChannel('channel');
+
+            const date = new Date(new Date().getTime() + time);
+            interaction.reply({
+                content: `Your message has been schedule for ${date.toTimeString()}`,
+            });
+            schedule.scheduleJob(date, () => {
+                channel.send({
+                    content: message,
+                });
+            });
         }
     } else if (interaction.isStringSelectMenu()) {
         console.log('Select menu');
@@ -167,10 +203,9 @@ client.on('interactionCreate', async (interaction) => {
         }
     } else if (interaction.isButton()) {
         console.log('Button clicked!');
-        console.log(interaction.componentType);
         interaction.reply({ content: 'Thank for clicking on the button!' });
     } else if (interaction.isUserContextMenuCommand()) {
-        console.log('User context menu command');
+        console.log('User context menu command!');
         console.log(interaction.commandName);
         if (interaction.commandName === 'Report') {
             const modal = new ModalBuilder()
@@ -213,27 +248,6 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function main() {
-    const commands = [
-        orderCommand,
-        rolesCommand,
-        usersCommand,
-        chanelsCommand,
-        banCommand,
-        registerCommand,
-        buttonCommand,
-        {
-            name: 'Report',
-            type: 2,
-        },
-        {
-            name: 'Wave',
-            type: 2,
-        },
-        {
-            name: 'Report Message',
-            type: 3,
-        },
-    ];
     try {
         console.log('Started refreshing application (/) commands.');
         await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
