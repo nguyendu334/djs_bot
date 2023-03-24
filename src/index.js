@@ -207,6 +207,8 @@ client.on('interactionCreate', async (interaction) => {
                 content: `Hello ${interaction.targetMember}`,
             });
         }
+    } else if (interaction.isMessageContextMenuCommand()) {
+        console.log(interaction.targetMessage);
     }
 });
 
@@ -226,6 +228,10 @@ async function main() {
         {
             name: 'Wave',
             type: 2,
+        },
+        {
+            name: 'Report Message',
+            type: 3,
         },
     ];
     try {
